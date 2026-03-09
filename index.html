@@ -1112,11 +1112,6 @@
                         </div>
                         <img id="avatarImg" alt="Profile photo" />
                     </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5">
-                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                        <circle cx="12" cy="13" r="4" />
-                    </svg>
-                    </button>
                     <input type="file" id="avatarInput" accept="image/*" />
                 </div>
             </div>
@@ -1413,39 +1408,51 @@
                 avatarImg.style.display = 'block';
                 avatarPlaceholder.style.display = 'none';
             } else {
-                // Try to load default avatar.png
-                avatarImg.src = 'avatar.png';
-                avatarImg.onerror = () => {
-                    avatarImg.style.display = 'none';
-                    avatarPlaceholder.style.display = 'flex';
-                };
-                avatarImg.onload = () => {
+                // Load default avatar.png
+                const img = new Image();
+                img.onload = () => {
+                    avatarImg.src = 'avatar.png';
                     avatarImg.style.display = 'block';
                     avatarPlaceholder.style.display = 'none';
                 };
+                img.onerror = () => {
+                    avatarImg.style.display = 'none';
+                    avatarPlaceholder.style.display = 'flex';
+                };
+                img.src = 'avatar.png';
             }
         }
 
         // Handle avatar upload
-        avatarCam.addEventListener('click', () => avatarInput.click());
-        avatarPlaceholder.addEventListener('click', () => avatarInput.click());
+        if (avatarCam) {
+            avatarCam.addEventListener('click', () => avatarInput.click());
+        }
+        if (avatarPlaceholder) {
+            avatarPlaceholder.addEventListener('click', () => avatarInput.click());
+        }
 
-        avatarInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    avatarImg.src = event.target.result;
-                    avatarImg.style.display = 'block';
-                    avatarPlaceholder.style.display = 'none';
-                    localStorage.setItem('userAvatar', event.target.result);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        if (avatarInput) {
+            avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        avatarImg.src = event.target.result;
+                        avatarImg.style.display = 'block';
+                        avatarPlaceholder.style.display = 'none';
+                        localStorage.setItem('userAvatar', event.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
 
-        // Load avatar when page loads
-        loadAvatar();
+        // Load avatar when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadAvatar);
+        } else {
+            loadAvatar();
+        }
     </script>
 </body>
 
